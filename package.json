@@ -1,0 +1,29 @@
+{
+  "name": "TCC-Arquitetura-PUC-Minas",
+  "version": "1.0.0",
+  "description": "Trabalho de Conclusão de Curso da PUC-MG - Arquitetura de Integração da Operadora de Saúde BOA SAÚDE",
+  "main": "index.js",
+  "scripts": {
+    "test": "tsc && jest dist/",
+    "tsc:init": "tsc --init",
+    "build": "tsc"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/juliocsanto/TCC-Arquitetura-PUC-Minas.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/juliocsanto/TCC-Arquitetura-PUC-Minas/issues"
+  },
+  "homepage": "https://github.com/juliocsanto/TCC-Arquitetura-PUC-Minas#readme",
+  "dependencies": {
+    "typescript": "^4.5.4"
+  },
+  "devDependencies": {
+    "@types/jest": "^27.4.0",
+    "jest": "^27.4.7"
+  }
+}
