@@ -10,17 +10,17 @@ services:
     volumes:
       - ./dist:/usr/src/app
     tty: true
-    entrypoint: ["npm","run","start"]
+    entrypoint: dockerize -wait tcp://mongodb-prestador:27017 -timeout 20s docker-entrypoint.sh npm run start
     ports:
       - "3000:3000"
   
-  mongo:
+  mongodb-prestador:
     image: mongo:latest
     restart: always
-    container_name: db-mongo
+    container_name: mongodb-prestador
     tty: true
     volumes:
-      - ./datadir:/data/db
+      - ./dist/src/data/mongoDatadir:/data/db
     environment:
       MONGO_INITDB_ROOT_USERNAME: root
       MONGO_INITDB_ROOT_PASSWORD: example
@@ -37,7 +37,7 @@ services:
     environment:
       ME_CONFIG_MONGODB_ADMINUSERNAME: root
       ME_CONFIG_MONGODB_ADMINPASSWORD: example
-      ME_CONFIG_MONGODB_URL: mongodb://root:example@mongo:27017/
+      ME_CONFIG_MONGODB_URL: mongodb://root:example@mongodb-prestador:27017/
     networks:
       - tcc-net
 
