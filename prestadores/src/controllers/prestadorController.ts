@@ -1,19 +1,26 @@
 import { Request, Response } from 'express'
 import { PrestadorServices } from '../services/prestadorServices'
+import { isUserSessionActive } from '../controllers/loginController'
 
 export const add = async (req: Request, res: Response) => {
-    console.log("Add");
+    console.log("Add Prestador");
+    
+    const isValidSession = await isUserSessionActive(req)
 
+    if (!isValidSession) {
+        return res.status(400).json({"error": "Sessão de usuário inválida/expirada"})
+    }
+    
     try {
-        const createdTodo = await PrestadorServices.addPrestador(req.body);
-        res.status(201).json(createdTodo);
+        const createdPrestador = await PrestadorServices.addPrestador(req.body);
+        res.status(201).json(createdPrestador);
     } catch (err) {
         res.status(500).json({"error": err})
     }
 }
 
 export const getAll = async (req: Request, res: Response) => {
-    console.log("GetAll");
+    console.log("GetAll Prestadores");
 
     try {
         const allPrestadores = await PrestadorServices.getAllPrestadores();

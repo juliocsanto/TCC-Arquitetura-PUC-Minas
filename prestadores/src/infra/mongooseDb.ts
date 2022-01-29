@@ -1,12 +1,5 @@
 import mongoose from 'mongoose'
 
-// const options: mongoose.ConnectOptions = {
-
-//     useNewUrlParser: true,
-//     useUnifiedTopology: true,
-//     // useFindAndModify: false,
-//     // userCreateIndex: false,
-// }
 async function init (){
     const user = 'root';
     const pass = 'example';

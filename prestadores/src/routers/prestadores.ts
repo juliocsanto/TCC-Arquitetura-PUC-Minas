@@ -1,6 +1,6 @@
-import express from "express";
+import { Router } from "express";
 import { add, getAll } from '../controllers/prestadorController'
-const router = express.Router()
+const router = Router()
 
 router.get('/', getAll)
 
