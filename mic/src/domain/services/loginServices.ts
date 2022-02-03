@@ -25,14 +25,11 @@ interface userData {
     accessToken?: string | string[] | undefined,
     idToken?: string | string[] | undefined,
     refreshToken?: string | string[] | undefined,
+    userPoolId?: string | number | string[] | undefined,
+    clientId?: string | number | string[] | undefined,
 }
 
-const emptyCognitoUserAttribute: CognitoUserAttribute[] = []
-
-const poolData = {
-    UserPoolId: 'us-east-1_ngWrwY1Ka',
-    ClientId: '1raf9o7gdmubmmo8ep4h6tb8u8'
-}
+const cognitoUserValidationAttributes: CognitoUserAttribute[] = []
 
 export class LoginServices {
     error: Error | undefined;
@@ -43,19 +40,19 @@ export class LoginServices {
     #password: string
     refreshToken: any;
     idToken: any;
+    userPoolId: any;
+    clientId: any;
 
     constructor(data: userData) {
-        this.username = data.username || data.name,
-            this.email = data.email,
-            this.phone = data.phone,
-            this.#password = data.password,
-            this.accessToken = data.accessToken
+        this.username = data.username || data.name
+        this.email = data.email,
+        this.phone = data.phone,
+        this.#password = data.password,
+        this.accessToken = data.accessToken
         this.idToken = data.idToken
         this.refreshToken = data.refreshToken
-
-        if (this.accessToken) {
-
-        }
+        this.userPoolId = data.userPoolId
+        this.clientId = data.clientId
     }
 
     async signUp(): Promise<any> {
@@ -80,52 +77,67 @@ export class LoginServices {
             const attributeName = new CognitoUserAttribute(dataUserName)
 
             const attributeList = [attributeEmail, attributePhoneNumber, attributeName]
+            
+            const poolData = {
+                UserPoolId: this.userPoolId,
+                ClientId: this.clientId
+            }
 
-            const userPool = new CognitoUserPool(poolData)
+            console.trace(poolData);            
 
-            let cognitoUser: any
+            const userPool = new CognitoUserPool(poolData)          
+            
+            let cognitoUser: CognitoUser | any
 
-            const signUpPromisified = promisify(userPool.signUp).bind(userPool)
-
-            signUpPromisified(this.username, this.#password, attributeList, emptyCognitoUserAttribute)
-                .then((result: ISignUpResult | undefined ) => {
-                    if (result?.user) {
-                        cognitoUser = result.user
-                    }
-                })
-                .catch((err) => {
-                    throw new Error(err.message || JSON.stringify(err))
-                })
+            const signUpPromisified = promisify(userPool.signUp).bind(userPool)        
+           
+            await signUpPromisified(this.username, this.#password, attributeList, cognitoUserValidationAttributes)
+                    .then((result: ISignUpResult | undefined) => {
+                        if (result?.user) {
+                            cognitoUser = result.user
+                            console.trace(cognitoUser);
+                        }   
+                    })
+                    .catch((err: any) => {
+                        console.trace(err);                    
+                        throw new Error(err.message || JSON.stringify(err))
+                    })
 
             if (cognitoUser) {
                 return cognitoUser?.getUsername()
             }
 
-        } catch(err: any) {
-            console.log(err);
-            return err.message || JSON.stringify(err)
+        } catch (err: any) {
+            console.trace(err);
+            return { error: err.message || JSON.stringify(err) }
         }
     }
 
     async signIn() {
         console.log('signIn Login Service');
 
+        const poolData = {
+            UserPoolId: this.userPoolId,
+            ClientId: this.clientId
+        }
+        
         try {
             const userPool = new CognitoUserPool(poolData)
             const userData = {
-                Username: this.email,
+                Username: this.username,
                 Pool: userPool
             }
 
             const cognitoUser = new CognitoUser(userData)
 
             const authenticationData: IAuthenticationDetailsData = {
-                Username: this.email,
+                Username: this.username,
                 Password: this.#password
             }
 
             const authenticationDetails = new AuthenticationDetails(authenticationData)
-
+            console.trace(cognitoUser);
+            
             const authUserPromisified = cognitoUser.authenticateUser[promisify.custom] = (authenticationDetails: AuthenticationDetails) => {
                 return new Promise((resolve, reject) => {
                     cognitoUser.authenticateUser(
@@ -154,8 +166,6 @@ export class LoginServices {
                     this.error = err
                 })
 
-            // console.trace('this.error ->>> ' + this.error)
-
             if (this.error) {
                 return { "error": this.error.message || JSON.stringify(this.error) }
             }
@@ -181,6 +191,11 @@ export class LoginServices {
     }
 
     async isUserSessionActive(): Promise<boolean> {
+        const poolData = {
+            UserPoolId: this.userPoolId,
+            ClientId: this.clientId
+        }      
+
         const userPool = new CognitoUserPool(poolData)
         const IdToken = new CognitoIdToken({ IdToken: this.idToken });
         const AccessToken = new CognitoAccessToken({ AccessToken: this.accessToken });
@@ -190,7 +205,7 @@ export class LoginServices {
             IdToken: IdToken,
             AccessToken: AccessToken,
             RefreshToken: RefreshToken
-        }
+        }        
 
         let isValid: any = false
 
@@ -203,16 +218,17 @@ export class LoginServices {
             };
 
             const cognitoUser = new CognitoUser(userData);
+            
             cognitoUser.setSignInUserSession(userSession);
 
             const getSessionPromisified = promisify(cognitoUser.getSession).bind(cognitoUser)
-            
+
             await getSessionPromisified()
-                    .then(userSession => {
-                        isValid = userSession?.isValid()                    
-                    })
-                    .catch(err => { throw new Error(err) })
-                
+                .then(userSession => {
+                    isValid = userSession?.isValid()
+                })
+                .catch(err => { throw new Error(err) })
+
             return isValid
 
         } catch (signInError) {

@@ -1,5 +1,5 @@
 import app from './app'
-import db from './infra/mongooseDb'
+import db from '../data/infra/mongooseDb'
 
 const PORT = process.env.PORT || 3000
 

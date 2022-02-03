@@ -4,7 +4,7 @@ async function init (){
     const user = 'root';
     const pass = 'example';
     const database = 'admin';
-    const serverName = 'mongodb-prestador';
+    const serverName = 'mongodb';
     const port = 27017
 
     const options = {

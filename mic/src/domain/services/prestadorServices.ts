@@ -1,9 +1,11 @@
-import Prestador from "../models/prestador";
+import { Prestador } from "../../data/models/prestador";
 
 interface PrestadorData {
     name: string, 
     cnpj: number, 
-    type: string
+    type: string,
+    phone: string,
+    email: string
 }
 
 export class PrestadorServices {
@@ -13,12 +15,20 @@ export class PrestadorServices {
                 name: data.name,
                 cnpj: data.cnpj,
                 type: data.type,
+                phone: data.phone,
+                email: data.email
             };
 
             const response = await new Prestador(newPrestador).save();
+            console.trace(response);
+            
             return response
         } catch (error: any) {
-            console.log(error);
+            console.trace(error);
+
+            return {
+                error: error.message
+            }
         }
     }
 

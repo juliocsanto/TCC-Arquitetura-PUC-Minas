@@ -1,7 +1,7 @@
 FROM node:lts
 
 RUN chmod o+r /etc/resolv.conf
-WORKDIR /usr/src/app
+WORKDIR /usr/src/app-mic
 
 RUN apt-get update && apt-get install -y wget
 
@@ -11,7 +11,7 @@ RUN wget https://github.com/jwilder/dockerize/releases/download/$DOCKERIZE_VERSI
     && rm dockerize-linux-amd64-$DOCKERIZE_VERSION.tar.gz
 
 COPY package*.json / 
-# RUN npm i -g npm 
-RUN npm ci
+RUN npm i npm
+RUN npm i npm && npm ci
 EXPOSE 3000
 CMD ["npm","run","start"]

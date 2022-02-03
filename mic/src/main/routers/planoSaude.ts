@@ -1,5 +1,6 @@
 import { Router } from "express";
-import { add, getAll } from '../controllers/prestadorController'
+import { add, getAll, change } from '../../domain/use-cases/associados/planoSaudeController'
+
 const router = Router()
 
 router.get('/', getAll)
@@ -10,9 +11,7 @@ router.get('/:id', (req , res) => {
 
 router.post('/', add)
 
-router.put('/:id', (req , res) => {
-    res.send('method not implemented yet')
-})
+router.put('/:cpf', change)
 
 router.delete('/:id', (req , res) => {
     res.send('method not implemented yet')
