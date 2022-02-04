@@ -2,22 +2,22 @@ import { Request, Response } from 'express'
 import { PlanoSaudeServices } from '../../services/planoSaudeServices'
 import { isUserSessionActive } from '../login/loginController'
 
-export const add = async (req: Request, res: Response) => {
-    console.log("Add PlanoSaude ao Associado");
+// export const add = async (req: Request, res: Response) => {
+//     console.log("Add PlanoSaude ao Associado");
     
-    const isValidSession = await isUserSessionActive(req, res)
+//     const isValidSession = await isUserSessionActive(req, res)
 
-    if (!isValidSession) {
-        return res.status(400).json({"error": "Sessão de usuário inválida/expirada"})
-    }
+//     if (!isValidSession) {
+//         return res.status(400).json({"error": "Sessão de usuário inválida/expirada"})
+//     }
     
-    try {
-        const addedPlanoSaude = await PlanoSaudeServices.addPlanoSaude(req.body);
-        res.status(201).json(addedPlanoSaude);
-    } catch (err) {
-        res.status(500).json({"error": err})
-    }
-}
+//     try {
+//         const addedPlanoSaude = await PlanoSaudeServices.addPlanoSaude(req.body);
+//         res.status(201).json(addedPlanoSaude);
+//     } catch (err) {
+//         res.status(500).json({"error": err})
+//     }
+// }
 
 export const getAll = async (req: Request, res: Response) => {
     console.log("GetAll PlanoSaudees");

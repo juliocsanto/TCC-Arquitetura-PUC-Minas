@@ -1,23 +1,23 @@
 version: '3.1'
 
 services:
-  app-mic:
+  app_mic:
     build: 
       context: dist
-    container_name: app-mic
+    container_name: app_mic
     networks:
       - tcc-network
     volumes:
-      - ./dist:/usr/src/app-mic
+      - ./dist:/usr/src/app_mic
     tty: true
-    entrypoint: dockerize -wait tcp://mongodb:27017 -timeout 20s docker-entrypoint.sh npm run start
+    entrypoint: dockerize -wait tcp://mongodb_mic:27017 -timeout 20s docker-entrypoint.sh npm run start
     ports:
       - "3000:3000"
 
-  mongodb:
+  mongodb_mic:
     image: mongo:latest
     restart: always
-    container_name: mongodb
+    container_name: mongodb_mic
     tty: true
     volumes:
       - ./dist/src/data/mongoDatadir:/data/db
@@ -28,16 +28,16 @@ services:
       - tcc-network
     
 
-  mongo-express:
+  mongo-express_mic:
     image: mongo-express:latest
-    container_name: mongo-express
+    container_name: mongo-express_mic
     restart: always
     ports:
       - "8081:8081"
     environment:
       ME_CONFIG_MONGODB_ADMINUSERNAME: root
       ME_CONFIG_MONGODB_ADMINPASSWORD: example
-      ME_CONFIG_MONGODB_URL: mongodb://root:example@mongodb:27017/
+      ME_CONFIG_MONGODB_URL: mongodb_mic://root:example@mongodb_mic:27017/
     networks:
       - tcc-network
 

@@ -1,7 +1,7 @@
 FROM node:lts
 
 RUN chmod o+r /etc/resolv.conf
-WORKDIR /usr/src/app-mic
+WORKDIR /usr/src/app_mic
 
 RUN apt-get update && apt-get install -y wget
 

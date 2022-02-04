@@ -9,14 +9,14 @@ interface userData {
     phone: string,
     password: string,
     username?: string | string[] | undefined
+    cpf?: number, 
+    sexo?: string,
+    idade?: number,
     accessToken?: string | string[] | undefined,
     idToken?: string | string[] | undefined,
     refreshToken?: string | string[] | undefined,
     userPoolId?: string | number | string[] | undefined,
     clientId?: string | number | string[] | undefined,
-    cpf?: number, 
-    sexo?: string,
-    idade?: number,
 }
 
 export const signUp = async (req: Request, res: Response) => {
@@ -24,6 +24,7 @@ export const signUp = async (req: Request, res: Response) => {
 
     const userData: userData  = {
         name: req.body.name,
+        cpf: req.body.cpf,
         email: req.body.email,
         phone: req.body.phone,
         password: req.body.password,
@@ -41,15 +42,18 @@ export const signUp = async (req: Request, res: Response) => {
         }
 
         const url = req.originalUrl
+
+        const isAssociadoRoute = url.search('associado') > -1
     
-        if (url.search('associado') > -1) {
+        
+        if (isAssociadoRoute) {
             await addAssociado(req, res)
         }
 
         res.removeHeader('clientId')
         res.removeHeader('cognitouserpool')
 
-        res.status(201).json({"success": "User created successfully!"});
+        return res.status(201).json({"success": "User created successfully!"});
     } catch (err: any) {
         res.status(500).json({"error": err.message})
     }
