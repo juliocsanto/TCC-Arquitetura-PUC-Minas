@@ -1,0 +1,31 @@
+version: '3.1'
+
+services:
+  app_mcd:
+    build: 
+      context: dist
+    container_name: app_mcd
+    networks:
+      - tcc-network
+    volumes:
+      - ./dist:/usr/src/app_mcd
+    tty: true
+    entrypoint: dockerize -wait tcp://redisdb_mcd:6379 -timeout 20s docker-entrypoint.sh npm run start
+    ports:
+      - "3005:3005"
+
+  redisdb_mcd:
+    image: redislabs/rejson:latest
+    restart: always
+    container_name: redisdb_mcd
+    tty: true
+    volumes:
+      - ./dist/src/data/RedisDatadir:/data
+    ports:
+      - "6379:6379"
+    networks:
+      - tcc-network
+    
+networks:
+  tcc-network:
+    name: tcc-network
