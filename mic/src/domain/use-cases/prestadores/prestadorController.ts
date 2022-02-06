@@ -1,4 +1,6 @@
 import { Request, Response } from 'express'
+import { load } from 'ts-dotenv'
+import dotenv from 'dotenv'
 import { PrestadorServices } from '../../services/prestadorServices'
 import { isUserSessionActive } from '../login/loginController'
 
@@ -11,6 +13,11 @@ export const add = async (req: Request, res: Response) => {
         return res.status(400).json({ "error": "Sessão de usuário inválida/expirada" })
     }
 
+    dotenv.config()    
+    const env = load({PORT: String})
+
+    const PORT = env.PORT || process.env.PORT || 3000
+
     try {
         const createdPrestador = await PrestadorServices.addPrestador(req.body);
 
@@ -18,6 +25,15 @@ export const add = async (req: Request, res: Response) => {
             res.status(500).json({ "error": createdPrestador?.error })
         }
 
+        const URL = `http://localhost:${PORT}/queue`
+        
+        const response = await PrestadorServices.sendPrestadorDataToQueue(
+            URL, 
+            createdPrestador
+        )
+        
+        console.trace(response);
+        
         res.status(201).json(createdPrestador);
     } catch (err) {
         res.status(500).json({ "error": err })

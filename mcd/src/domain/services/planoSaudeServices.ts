@@ -8,7 +8,7 @@ interface plano_saude_info {
 }
 
 interface cadastro_info {
-    name: string, 
+    name: string,
     cpf: number,
     idade: number,
     phone: string,
@@ -24,41 +24,55 @@ interface PlanoSaudeData {
 export class PlanoSaudeServices {
     static async changePlanoSaude({ body, params }) {
         console.log('change PlanoSaude');
-               
+
         try {
-            const cpf: string = params.cpf || body.cpf
+            const cpf: string = body.cadastro_info?.cpf || params.cpf
+
+            console.trace(body);
             
             await redisClient.connect()
 
             const listaPlanoSaude: Array<PlanoSaudeData> = JSON.parse(await redisClient.get('associados', '.'))
 
             const newPlanoSaudeInfos: plano_saude_info = {
-                    tipo_plano_de_saude: body.tipo_plano_de_saude,
-                    classe_plano_de_saude: body.classe_plano_de_saude,
-                    tem_plano_odonto: body.tem_plano_odonto,
-                    status: body.status       
+                tipo_plano_de_saude: body.plano_saude_info?.tipo_plano_de_saude,
+                classe_plano_de_saude: body.plano_saude_info?.classe_plano_de_saude,
+                tem_plano_odonto: body.plano_saude_info?.tem_plano_odonto,
+                status: body.plano_saude_info?.status
             }
 
-            let indexToDelete: number = 0            
-            const newData = listaPlanoSaude.map(function(item, index){
-                if (item.cadastro_info?.cpf?.toString() == cpf.toString()) {
-                    indexToDelete = index
-                    item.plano_saude_info = newPlanoSaudeInfos
-                }
+            const indexToDelete = listaPlanoSaude.findIndex((elem, index) => {
+                console.trace(elem.cadastro_info?.cpf?.toString())
+                console.trace(cpf.toString())
                 
-                return item
-            }) 
-            
-            await redisClient.arrpop('associados', indexToDelete, '.')
+                return elem.cadastro_info?.cpf?.toString() == cpf.toString()
+            })
 
-            console.trace(listaPlanoSaude.length); 
-            const response = await redisClient.set('associados', '.', JSON.stringify(newData))
-            console.trace(newData);
+            const dataChanged = {
+                cadastro_info: {
+                    name: body.cadastro_info?.name,
+                    cpf: body.cadastro_info?.cpf,
+                    idade: body.cadastro_info?.idade,
+                    phone: body.cadastro_info?.phone,
+                    email: body.cadastro_info?.email,
+                    sexo: body.cadastro_info?.sexo,
+                },
+                plano_saude_info: newPlanoSaudeInfos
+            }
+
+            if (indexToDelete < 0) {
+                listaPlanoSaude.push(dataChanged)
+            } else {
+                listaPlanoSaude[indexToDelete].plano_saude_info = newPlanoSaudeInfos
+            }
+
+            const response = await redisClient.set('associados', '.', JSON.stringify(listaPlanoSaude))
+            console.trace(dataChanged);
             console.trace(response);
-            
+
             await redisClient.disconnect()
 
-            return newData
+            return dataChanged
 
         } catch (error: any) {
             console.trace(`Could not fetch PlanoSaude: ${error.message}`);
@@ -100,7 +114,7 @@ export class PlanoSaudeServices {
     //         console.trace(listaPlanoSaude.length); 
 
     //         const itemToUpdate = await redisClient.arrpop('associados', indexToUpdate, '.')
-        
+
     //         const response = await redisClient.set('associados', '.', JSON.stringify(dataChanged))
 
     //         await redisClient.disconnect()
@@ -126,7 +140,7 @@ export class PlanoSaudeServices {
 
             const allPlanoSaudes = await redisClient.get('associados', '.')
             console.trace(allPlanoSaudes.length);
-            
+
             await redisClient.disconnect()
 
             return allPlanoSaudes

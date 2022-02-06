@@ -18,13 +18,7 @@ export const add = async (req: Request, res: Response) => {
 }
 
 export const getAll = async (req: Request, res: Response) => {
-    console.log("GetAll Associadoes");
-
-    // const isValidSession = await isUserSessionActive(req, res)
-
-    // if (!isValidSession) {
-    //     return res.status(400).json({ "error": "Sessão de usuário inválida/expirada" })
-    // }
+    console.log("GetAll Associados");
 
     try {
         const allAssociadoes = await AssociadoServices.getAllAssociados();

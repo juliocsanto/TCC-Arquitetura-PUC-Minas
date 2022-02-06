@@ -81,9 +81,7 @@ export class LoginServices {
             const poolData = {
                 UserPoolId: this.userPoolId,
                 ClientId: this.clientId
-            }
-
-            console.trace(poolData);            
+            }         
 
             const userPool = new CognitoUserPool(poolData)          
             

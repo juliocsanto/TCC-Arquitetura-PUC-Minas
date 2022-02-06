@@ -53,13 +53,13 @@ export class AssociadoServices {
         try {
             await redisClient.connect()
 
-            const allAssociadoes = await redisClient.get('associados', '.')
-            console.trace(allAssociadoes.length);
-            console.trace(allAssociadoes);
+            const allAssociados = await redisClient.get('associados', '.')
+            console.trace(allAssociados.length);
+            console.trace(allAssociados);
 
             await redisClient.disconnect()
 
-            return allAssociadoes
+            return allAssociados
 
         } catch (error: any) {
             console.log(`Could not fetch associado: ${error.message}`);

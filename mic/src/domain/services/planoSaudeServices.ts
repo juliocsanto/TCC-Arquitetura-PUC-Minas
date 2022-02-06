@@ -1,3 +1,5 @@
+import axios, { AxiosRequestConfig } from "axios"
+import { FilterQuery, QueryOptions } from "mongoose"
 import { Associado } from "../../data/models/associado"
 
 interface plano_saude_info {
@@ -8,7 +10,7 @@ interface plano_saude_info {
 }
 
 interface cadastro_info {
-    name: string, 
+    name: string,
     cpf: number,
     idade: number,
     phone: string,
@@ -18,72 +20,72 @@ interface cadastro_info {
 
 interface PlanoSaudeData {
     cadastro_info: cadastro_info,
-    plano_saude_info: plano_saude_info
+    plano_saude_info?: plano_saude_info
 }
 
 export class PlanoSaudeServices {
-    static async changePlanoSaude({body, params}){
-        const cpf = params.cpf || body.cpf
-        
+    static async changePlanoSaude({ body, params }) {
+        console.trace("Change PlanoSaude Service");
+
+        const cpf: string = params.cpf || body.cpf || ''
+
         try {
             const newPlanoSaude: plano_saude_info = {
-                tipo_plano_de_saude: body.tipo_plano_de_saude,
-                classe_plano_de_saude: body.classe_plano_de_saude,
-                tem_plano_odonto: body.tem_plano_odonto,
-                status: body.status
+                tipo_plano_de_saude: body.tipo_plano_de_saude || 'none',
+                classe_plano_de_saude: body.classe_plano_de_saude || 'none',
+                tem_plano_odonto: body.tem_plano_odonto || false,
+                status: body.status || 'inativo'
+            }
+            
+            const filter = {
+                "cadastro_info.cpf": parseInt(cpf)
             }
 
-            const query = {
-                cpf: cpf
+            const options: QueryOptions = {
+                new: true,
+                runValidators: true
             }
 
-            const associadoToChange: cadastro_info = await Associado.findOne(query, newPlanoSaude)
-
-            const newData: PlanoSaudeData = {
-                cadastro_info: associadoToChange,
-                plano_saude_info: newPlanoSaude
+            const setData = {
+                $set: {"plano_saude_info": newPlanoSaude}
             }
 
-            const response = await Associado.findOneAndReplace(query, newData)
+            const newData: PlanoSaudeData = await Associado.findOneAndUpdate(filter, setData, options)
 
-            return response
+            console.trace(newData);
+
+            return newData
+            // }
+            // return associadoToChange
+
         } catch (error: any) {
             console.log(error);
         }
     }
 
-    // static async addPlanoSaude(data: PlanoSaudeData){
-    //     try {
-    //         const newPlanoSaude = {
-    //             name: data.name,
-    //             cpf: data.cpf,
-    //             email: data.email,
-    //             sexo: data.sexo,
-    //             idade: data.idade,
-    //             phone: data.phone,
-    //             tipo_plano_de_saude: data.tipo_plano_de_saude,
-    //             classe_plano_de_saude: data.classe_plano_de_saude,
-    //             tem_plano_odonto: data.tem_plano_odonto,
-    //             status: data.status
-    //         };
+    static async sendPlanoSaudeDataToQueue(uri: string, data: PlanoSaudeData) {
+        const config: AxiosRequestConfig = {
+            headers: {
+                "Routing-Queue-Key": "planosaude_info"
+            },            
+        }
+        const response = await axios.post(uri, data, config)
 
-    //         const response = await new Associado(newPlanoSaude).save();
-    //         return response
-    //     } catch (error: any) {
-    //         console.log(error);
-    //     }
-    // }
+        // console.trace(response)
 
-    static async getAllPlanoSaude(){
+        return response
+    }
+
+    static async getAllPlanoSaude() {
         console.log('getAllPlanoSaude');
-        
+
         try {
             const allPlanoSaudes = await Associado.find();
-            
+
             return allPlanoSaudes
-            
+
         } catch (error: any) {
             console.log(`Could not fetch todos: ${error.message}`);
-        }        
+        }
     }
 }

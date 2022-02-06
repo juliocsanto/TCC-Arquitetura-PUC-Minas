@@ -1,32 +1,11 @@
+import axios, { AxiosRequestConfig } from "axios";
 import { Associado } from "../../data/models/associado"
-
-interface AssociadoData {
-    cadastro_info: {
-        name: string,
-        cpf: number,
-        idade?: number,
-        phone: string,
-        email: string,
-        sexo: string,
-    }
-}
+import { AssociadoData } from '../types/types'
 
 export class AssociadoServices {
-    static async addAssociado({ body }) {
+    static async addAssociado(data: AssociadoData) {
         try {
-            const newAssociado: AssociadoData = {
-                cadastro_info: {
-                    name: body.name,
-                    cpf: body.cpf,
-                    sexo: body.sexo,
-                    phone: body.phone,
-                    idade: body.idade,
-                    email: body.email
-                }
-            };
-
-            const response = await new Associado(newAssociado).save();
-            return response
+            return await new Associado(data).save();
         } catch (error: any) {
             console.trace(error);
         }
@@ -43,5 +22,20 @@ export class AssociadoServices {
         } catch (error: any) {
             console.log(`Could not fetch todos: ${error.message}`);
         }
+    }
+
+    static async sendAssociadosDataToQueue(uri: string, data: AssociadoData){
+        const config: AxiosRequestConfig = {
+            headers: {
+                "Routing-Queue-Key":"associado"
+            }
+        }
+        const response = await axios.post(uri, data, config)
+        
+        console.trace(new Date());
+        console.log(response.status);
+        console.log(response.data);   
+
+        return 
     }
 }

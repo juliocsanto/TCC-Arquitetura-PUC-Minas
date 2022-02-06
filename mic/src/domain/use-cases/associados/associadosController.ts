@@ -1,9 +1,29 @@
+import axios from 'axios';
 import { Request, Response } from 'express'
+import { load } from 'ts-dotenv'
+import dotenv from 'dotenv'
 import { AssociadoServices } from '../../services/associadoServices'
 import { isUserSessionActive } from '../login/loginController'
+import { AssociadoData } from '../../types/types'
 
 export const add = async (req: Request, res: Response) => {
     console.trace("Add Associado");
+    dotenv.config()    
+    const env = load({PORT: String})
+
+    const PORT = env.PORT || process.env.PORT || 3000
+
+    const newAssociado: AssociadoData = {
+        cadastro_info: {
+            name: req.body.name,
+            cpf: req.body.cpf,
+            sexo: req.body.sexo,
+            phone: req.body.phone,
+            idade: req.body.idade,
+            email: req.body.email
+        }
+    }
+
     try {
         const url = req.originalUrl
         const isNotLoginRoute = url.search('login') < 0
@@ -16,10 +36,19 @@ export const add = async (req: Request, res: Response) => {
             }
         }
 
-        const createdAssociado = await AssociadoServices.addAssociado(req);
+        const createdAssociado = await AssociadoServices.addAssociado(newAssociado);
+
+        if (createdAssociado) {
+            console.trace(createdAssociado);
+            
+            const URL = `http://localhost:${PORT}/queue`
+            await AssociadoServices.sendAssociadosDataToQueue(URL, createdAssociado)
+        }
+
         if (!isNotLoginRoute) {
             return createdAssociado
         }
+
         return res.status(201).json(createdAssociado);
     } catch (err) {
         return res.status(500).json({ "error": err })

@@ -1,23 +1,8 @@
 import { Request, Response } from 'express'
+import { load } from 'ts-dotenv'
+import dotenv from 'dotenv'
 import { PlanoSaudeServices } from '../../services/planoSaudeServices'
 import { isUserSessionActive } from '../login/loginController'
-
-// export const add = async (req: Request, res: Response) => {
-//     console.log("Add PlanoSaude ao Associado");
-    
-//     const isValidSession = await isUserSessionActive(req, res)
-
-//     if (!isValidSession) {
-//         return res.status(400).json({"error": "Sessão de usuário inválida/expirada"})
-//     }
-    
-//     try {
-//         const addedPlanoSaude = await PlanoSaudeServices.addPlanoSaude(req.body);
-//         res.status(201).json(addedPlanoSaude);
-//     } catch (err) {
-//         res.status(500).json({"error": err})
-//     }
-// }
 
 export const getAll = async (req: Request, res: Response) => {
     console.log("GetAll PlanoSaudees");
@@ -43,17 +28,29 @@ export const getAll = async (req: Request, res: Response) => {
 }
 
 export const change = async (req: Request, res: Response) => {
-    console.log("Change PlanoSaude");
+    console.trace("Change PlanoSaude Controller");
     
     const isValidSession = await isUserSessionActive(req, res)
 
     if (!isValidSession) {
         return res.status(400).json({"error": "Sessão de usuário inválida/expirada"})
     }
+
+    dotenv.config()    
+    const env = load({PORT: String})
+
+    const PORT = env.PORT || process.env.PORT || 3000
     
     try {
-        const createdPlanoSaude = await PlanoSaudeServices.changePlanoSaude(req);
-        res.status(201).json(createdPlanoSaude);
+        const newData = await PlanoSaudeServices.changePlanoSaude(req);
+        
+        if (newData) {            
+            const URL = `http://localhost:${PORT}/queue`
+            await PlanoSaudeServices.sendPlanoSaudeDataToQueue(URL, newData)
+            // console.trace(response);            
+        }
+
+        res.status(201).json(newData);
     } catch (err) {
         res.status(500).json({"error": err})
     }

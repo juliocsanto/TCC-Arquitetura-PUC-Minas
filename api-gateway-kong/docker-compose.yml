@@ -17,7 +17,7 @@ services:
     volumes:
       - persist_volume:/var/lib/postgresql/data
     networks:
-      - kong-net
+      - tcc-network
 
   kong-migrations:
     image: kong:latest
@@ -31,7 +31,7 @@ services:
     depends_on:
       - db
     networks:
-      - kong-net
+      - tcc-network
     restart: on-failure
 
   kong:
@@ -45,10 +45,14 @@ services:
       KONG_PG_PASSWORD: ${KONG_DB_PASSWORD}
       KONG_PROXY_ACCESS_LOG: ${KONG_PROXY_ACCESS_LOG}
       KONG_ADMIN_ACCESS_LOG: ${KONG_ADMIN_ACCESS_LOG}
+      KONG_ADMIN_LISTEN: ${KONG_ADMIN_LISTEN}
       KONG_PROXY_ERROR_LOG: ${KONG_PROXY_ERROR_LOG}
       KONG_ADMIN_ERROR_LOG: ${KONG_ADMIN_ERROR_LOG}
+      KONG_PROXY_PORT: ${KONG_PROXY_PORT}
+      KONG_PROXY_SSL_PORT: ${KONG_PROXY_SSL_PORT}
+      KONG_PROXY_ADMIN_API_PORT: ${KONG_PROXY_ADMIN_API_PORT}
+      KONG_PROXY_ADMIN_SSL_API_PORT: ${KONG_PROXY_ADMIN_SSL_API_PORT}
       KONG_DECLARATIVE_CONFIG: "/opt/kong/kong.yaml"
-      #KONG_ADMIN_LISTEN: ${KONG_ADMIN_LISTEN}
     healthcheck:
       test: ["CMD", "kong", "health"]
       interval: 10s
@@ -61,16 +65,30 @@ services:
       - kong_tmp_vol:/tmp
       - ./config:/opt/kong
     ports:
-      - $KONG_PROXY_PORT:8000
-      - $KONG_PROXY_SSL_PORT:8443
-      - $KONG_PROXY_ADMIN_API_PORT:8001
-      - $KONG_PROXY_ADMIN_SSL_API_PORT:8444
+      # - $KONG_PROXY_PORT:8000
+      # - $KONG_PROXY_SSL_PORT:8443
+      # - $KONG_PROXY_ADMIN_API_PORT:8001
+      # - $KONG_PROXY_ADMIN_SSL_API_PORT:8444
+      - "8000:8000/tcp"
+      - "8001:8001/tcp"
+      - "8443:8443/tcp"
+      - "8444:8444/tcp"
     networks:
-      - kong-net
+      - tcc-network
     depends_on:
       - db
     security_opt:
       - no-new-privileges
+
+  konga-prepare:
+    container_name: konga-prepare
+    image: pantsel/konga:latest
+    command: "-c prepare -a postgres -u postgresql://kong:kong@db:5432/${KONGA_DB_NAME}"
+    networks:
+      - tcc-network
+    restart: on-failure
+    depends_on:
+      - db
 
   konga:
     image: pantsel/konga
@@ -90,7 +108,7 @@ services:
     depends_on:
       - db
     networks:
-      - kong-net
+      - tcc-network
 
 volumes:
   persist_volume:  
@@ -105,5 +123,6 @@ volumes:
      device: tmpfs
 
 networks:
-  kong-net:
+  tcc-network:
+    name: tcc-network
     external: true

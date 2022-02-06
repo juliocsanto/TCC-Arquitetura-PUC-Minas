@@ -1,26 +1,19 @@
 import { Request, Response } from 'express'
 import { PrestadorServices } from '../../services/prestadorServices'
-// import { isUserSessionActive } from '../login/loginController'
 
 export const add = async (req: Request, res: Response) => {
     console.log("Add Prestador");
-
-    // const isValidSession = await isUserSessionActive(req, res)
-
-    // if (!isValidSession) {
-    //     return res.status(400).json({ "error": "Sessão de usuário inválida/expirada" })
-    // }
 
     try {
         const createdPrestador = await PrestadorServices.addPrestador(req.body);
 
         if (createdPrestador?.error) {
-            res.status(500).json({ "error": createdPrestador?.error })
+            return res.status(500).json({ "error": createdPrestador?.error })
         }
 
-        res.status(201).json(createdPrestador);
+        return res.status(201).json(createdPrestador);
     } catch (err) {
-        res.status(500).json({ "error": err })
+        return res.status(500).json({ "error": err })
     }
 }
 
@@ -35,7 +28,7 @@ export const getAll = async (req: Request, res: Response) => {
 
     try {
         const allPrestadores = await PrestadorServices.getAllPrestadores();
-        res.setHeader('content-type','application/json')
+        res.setHeader('content-type', 'application/json')
         if (!allPrestadores || allPrestadores.length === 0) {
             return res.status(404).json("There is no prestador published yet!");
         }
@@ -54,10 +47,10 @@ export const get = async (req: Request, res: Response) => {
     try {
         const prestador = await PrestadorServices.getPrestador(req);
 
-        res.setHeader('content-type','application/json')
+        res.setHeader('content-type', 'application/json')
 
         if (!prestador) {
-            return res.status(404).json({"error": `Prestador ${req.params.cnpj} not found`});
+            return res.status(404).json({ "error": `Prestador ${req.params.cnpj} not found` });
         }
 
         console.log(prestador);
@@ -66,6 +59,6 @@ export const get = async (req: Request, res: Response) => {
 
     } catch (error: any) {
         console.log(`Could not fetch prestador: ${error.message}`);
-        res.status(500).json({"error": error.message});
+        res.status(500).json({ "error": error.message });
     }
 }
