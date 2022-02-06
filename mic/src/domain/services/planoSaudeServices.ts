@@ -1,27 +1,7 @@
 import axios, { AxiosRequestConfig } from "axios"
 import { FilterQuery, QueryOptions } from "mongoose"
 import { Associado } from "../../data/models/associado"
-
-interface plano_saude_info {
-    tipo_plano_de_saude: string,
-    classe_plano_de_saude: string,
-    tem_plano_odonto: boolean,
-    status: string,
-}
-
-interface cadastro_info {
-    name: string,
-    cpf: number,
-    idade: number,
-    phone: string,
-    email: string,
-    sexo: string,
-}
-
-interface PlanoSaudeData {
-    cadastro_info: cadastro_info,
-    plano_saude_info?: plano_saude_info
-}
+import { plano_saude_info, PlanoSaudeData} from '../types/types'
 
 export class PlanoSaudeServices {
     static async changePlanoSaude({ body, params }) {
@@ -36,7 +16,7 @@ export class PlanoSaudeServices {
                 tem_plano_odonto: body.tem_plano_odonto || false,
                 status: body.status || 'inativo'
             }
-            
+
             const filter = {
                 "cadastro_info.cpf": parseInt(cpf)
             }
@@ -47,7 +27,7 @@ export class PlanoSaudeServices {
             }
 
             const setData = {
-                $set: {"plano_saude_info": newPlanoSaude}
+                $set: { "plano_saude_info": newPlanoSaude }
             }
 
             const newData: PlanoSaudeData = await Associado.findOneAndUpdate(filter, setData, options)
@@ -67,7 +47,7 @@ export class PlanoSaudeServices {
         const config: AxiosRequestConfig = {
             headers: {
                 "Routing-Queue-Key": "planosaude_info"
-            },            
+            },
         }
         const response = await axios.post(uri, data, config)
 

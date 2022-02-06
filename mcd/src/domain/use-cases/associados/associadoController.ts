@@ -8,12 +8,12 @@ export const add = async (req: Request, res: Response) => {
         const createdAssociado = await AssociadoServices.addAssociado(req);
 
         if (createdAssociado?.error) {
-            res.status(500).json({ "error": createdAssociado?.error })
+          return res.status(500).json({ "error": createdAssociado?.error })
         }
 
-        res.status(201).json(createdAssociado);
+        return res.status(201).json(createdAssociado);
     } catch (err) {
-        res.status(500).json({ "error": err })
+        return res.status(500).json({ "error": err })
     }
 }
 

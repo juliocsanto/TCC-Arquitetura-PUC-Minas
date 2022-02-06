@@ -53,6 +53,6 @@ export const get = async (req: Request, res: Response) => {
 
     } catch (error: any) {
         console.log(`Could not fetch prestador: ${error.message}`);
-        res.status(500).json({ "error": error.message });
+        return res.status(500).json({ "error": error.message });
     }
 }

@@ -7,15 +7,10 @@ export default class RabbitmqServer {
     constructor(private uri: string) { }
 
     async start(): Promise<void> {
-        // try {
         this.conn = await connect(this.uri)
         this.channel = await this.conn.createChannel()
 
         console.log('Sucesso: Comunicação efetuado com sucesso: ');
-
-        // } catch (error) {
-        //     console.log('Erro: ' + error);
-        // }
     }
 
     async publishInQueue(queue: string, message: string) {
