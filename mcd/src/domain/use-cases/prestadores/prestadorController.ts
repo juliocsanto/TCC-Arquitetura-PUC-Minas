@@ -20,12 +20,6 @@ export const add = async (req: Request, res: Response) => {
 export const getAll = async (req: Request, res: Response) => {
     console.log("GetAll Prestadores");
 
-    // const isValidSession = await isUserSessionActive(req, res)
-
-    // if (!isValidSession) {
-    //     return res.status(400).json({ "error": "Sessão de usuário inválida/expirada" })
-    // }
-
     try {
         const allPrestadores = await PrestadorServices.getAllPrestadores();
         res.setHeader('content-type', 'application/json')
