@@ -1,30 +1,8 @@
 import { Request, Response } from 'express'
 import { PlanoSaudeServices } from '../../services/planoSaudeServices'
 
-// export const add = async (req: Request, res: Response) => {
-//     console.log("Add PlanoSaude");
-
-//     try {
-//         const createdPlanoSaude = await PlanoSaudeServices.addPlanoSaude(req);
-
-//         if (createdPlanoSaude?.error) {
-//             res.status(500).json({ "error": createdPlanoSaude?.error })
-//         }
-
-//         res.status(201).json(createdPlanoSaude);
-//     } catch (err) {
-//         res.status(500).json({ "error": err })
-//     }
-// }
-
 export const getAll = async (req: Request, res: Response) => {
     console.log("GetAll PlanoSaudees");
-
-    // const isValidSession = await isUserSessionActive(req, res)
-
-    // if (!isValidSession) {
-    //     return res.status(400).json({ "error": "Sessão de usuário inválida/expirada" })
-    // }
 
     try {
         const allPlanoSaude = await PlanoSaudeServices.getAllPlanoSaude();
@@ -58,8 +36,8 @@ export const get = async (req: Request, res: Response) => {
         return res.send(PlanoSaude)
 
     } catch (error: any) {
-        console.log(`Could not fetch PlanoSaude: ${error.message}`);
-        res.status(500).json({"error": error.message});
+        console.trace(`Could not fetch PlanoSaude: ${error.message}`);
+        return res.status(500).json({"error": error.message});
     }
 }
 
