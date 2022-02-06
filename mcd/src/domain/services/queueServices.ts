@@ -26,14 +26,21 @@ export async function listenQueues(){
                 "Content-Type": "application/json"
             }
         }
-        const responseAxios = await axios.post(
-            `http://localhost:${PORT}/associado`,
-            body,
-            config
-        )
-        console.trace(new Date())
-        console.trace(responseAxios.status);
-        console.trace(responseAxios.data);
+
+        try {
+            const responseAxios = await axios.post(
+                `http://localhost:${PORT}/associado`,
+                body,
+                config
+            )
+            console.trace(new Date())
+            console.trace(responseAxios.status);
+            console.trace(responseAxios.data);
+        } catch (error) {
+            console.trace(new Date())
+            console.trace(error.status);
+            console.trace(error.data);
+        }
     })
 
     await server.consume('PrestadorData', async (message) => {
@@ -47,14 +54,21 @@ export async function listenQueues(){
                 "Content-Type": "application/json"
             }
         }
-        const responseAxios = await axios.post(
-            `http://localhost:${PORT}/prestador`,
-            body,
-            config
-        )
-        console.trace(new Date())
-        console.trace(responseAxios.status);
-        console.trace(responseAxios.data);
+        try {
+            const responseAxios = await axios.post(
+                `http://localhost:${PORT}/prestador`,
+                body,
+                config
+            )
+            console.trace(new Date())
+            console.trace(responseAxios.status);
+            console.trace(responseAxios.data);
+            
+        } catch (error) {
+            console.trace(new Date())
+            console.trace(error.status);
+            console.trace(error.data);
+        }
     })
 
     await server.consume('PlanoSaudeAssociadoData', async (message) => {
@@ -69,10 +83,16 @@ export async function listenQueues(){
                 "Content-Type": "application/json"
             }
         }
-        const responseAxios = await axios.put(
-            `http://localhost:${PORT}/associado/plano-saude/${cpf}`,
-            body,
-            config
-        )
+        try {            
+            const responseAxios = await axios.put(
+                `http://localhost:${PORT}/associado/plano-saude/${cpf}`,
+                body,
+                config
+            )
+        } catch (error) {
+            console.trace(new Date());
+            console.trace(error.status);
+            console.trace(error.data);            
+        }
     })
 }
